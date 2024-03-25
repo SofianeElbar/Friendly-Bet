@@ -1,0 +1,15 @@
+<div class="admin-title">
+  <%- include('../partials/header_admin.ejs') %>
+  <h2>Bets</h2>
+  <a href="betchoice" class="button">+ Create a new Bet</a>
+</div>
+
+<ul class="admin-bet">
+  <% data.forEach(bet => { %>
+  <li><%= bet.betType %></li>
+  <% bet.participants.forEach(participant => { %>
+  <li><%= participant.username %> <% console.log(participant.username) %></li>
+  <% }) %>
+  <li><%= bet.stakes %></li>
+  <% }) %>
+</ul>

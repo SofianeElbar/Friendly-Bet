@@ -1,0 +1,72 @@
+<div id="id01" class="modal">
+  <span
+    onclick="document.getElementById('id01').style.display='none'"
+    class="close"
+    title="Close Modal"
+    >&times;</span
+  >
+  <form class="modal-content" action="/admin" method="POST">
+    <div class="container-modal">
+      <h3>Already a Friendly Bet member? Please Sign In</h3>
+      <hr />
+      <label for="username"><b>Username</b></label>
+      <input
+        type="text"
+        placeholder="Enter Username"
+        name="username"
+        required
+      />
+
+      <label for="password"><b>Password</b></label>
+      <input
+        type="password"
+        placeholder="Enter Password"
+        name="password"
+        required
+      />
+
+      <p>
+        If you don't yet have an account, please
+        <a href="/signup" style="color: dodgerblue; margin-bottom: 15px"
+          >Sign Up</a
+        >.
+      </p>
+
+      <div class="clearfix">
+        <button
+          type="button"
+          onclick="document.getElementById('id01').style.display='none'"
+          class="cancelbtn"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="signinbtn">Sign In</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="purpose">
+  <img
+    src="/img/friends_joy.jpg"
+    alt="a group of friends laughing"
+    class="purpose__image"
+  />
+  <div class="purpose__advice">
+    <h1 class="advice__welcome">Welcome to Friendly Bet!</h1>
+    <p class="advice__body">
+      Answer the following questions to create your bet and share it with your
+      friends.
+    </p>
+
+    <div class="advice__btn">
+      <button
+        onclick="document.getElementById('id01').style.display='block'"
+        style="width: auto"
+        class="btn"
+      >
+        Start
+      </button>
+    </div>
+  </div>
+</div>

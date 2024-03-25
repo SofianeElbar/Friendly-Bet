@@ -1,0 +1,162 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+:root {
+  --black: #1c1c1c;
+  --gray: #7e7e7e;
+  --gray-light: #e4e4e4;
+  --blue: #0445af;
+  --blue-light: #199ad3;
+  --blue-lighter: #e8f0f6;
+  --font-size-base: 1rem;
+  --font-size-md: clamp(1.25rem, 0.61vw + 1.1rem, 1.58rem);
+  --font-size-lg: clamp(1.56rem, 1vw + 1.31rem, 2.11rem);
+  --font-size-xl: clamp(2.44rem, 2.38vw + 1.85rem, 3.75rem);
+  --border-radius: 5px;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  color: var(--black);
+  font-size: var(--font-size-base);
+  margin: 0;
+}
+
+input[type="text"] {
+  border: none;
+  border-bottom: 2px solid var(--blue-light);
+  color: var(--blue-light);
+  font-size: var(--font-size-md);
+  width: 100%;
+}
+
+input[type="text"]:focus {
+  outline: none;
+}
+
+input[type="text"]::placeholder {
+  color: var(--blue-light);
+  opacity: 0.4;
+}
+
+input[type="text"]:focus::placeholder {
+  color: transparent;
+}
+
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+select,
+.btn {
+  background-color: var(--blue);
+  border: none;
+  color: white;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+  border-radius: var(--border-radius);
+  padding: 16px 25px;
+  text-decoration: none;
+  margin: 4px 2px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: rgb(97, 97, 185);
+}
+
+.bet__button {
+  background-color: var(--blue);
+  border: none;
+  color: white;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  border-radius: var(--border-radius);
+  padding: 16px 25px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.bet__welcome {
+  font-size: var(--font-size-md);
+}
+
+label {
+  background-color: var(--blue-lighter);
+  border: 1px solid var(--blue);
+  color: var(--blue);
+  padding: 10px;
+}
+
+label:hover {
+  background-color: #199ad3;
+  cursor: pointer;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px 0;
+}
+
+h1 {
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+p {
+  font-size: var(--font-size-md);
+  color: var(--gray);
+}
+
+img {
+  width: 100%;
+  height: auto;
+}
+
+.purpose__advice {
+  padding: 10px 10px 10px 10px;
+}
+
+.bet__fs {
+  font-size: var(--font-size-base);
+}
+
+.yourbet {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center;
+  padding: 0 10px;
+}
+
+@media only screen and (min-width: 1025px) {
+  .purpose {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .purpose__advice {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 100px 0 100px;
+  }
+
+  img {
+    width: 50%;
+    height: 100vh;
+    object-fit: cover;
+  }
+
+  form {
+    width: 70%;
+  }
+
+  .yourbet {
+    padding: 0 300px;
+  }
+}
