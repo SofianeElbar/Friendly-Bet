@@ -60,9 +60,8 @@ router.get("/bet/:id", async (req, res) => {
   try {
     let slug = req.params.id;
 
-    const data = await Bet.findById({ _id: slug });
-    // .populate("participants");
-    // res.json(data);
+    const data = await Bet.findById({ _id: slug }).populate("participants");
+
     const locals = {
       betType: data.betType,
       participants: data.participants,

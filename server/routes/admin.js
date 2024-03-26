@@ -13,18 +13,36 @@ const jwtSecret = process.env.JWT_SECRET;
  * Home - Login Page
  */
 
-router.get("/", async (req, res) => {
-  try {
-    const locals = {
-      title: "Frinedly Bet",
-      description: "Welcome",
-    };
+router.get(
+  "/",
+  (req, res, next) => {
+    // Check if the user is authenticated
+    if (req.cookies.token) {
+      // If the user is authenticated, redirect to the dashboard
+      return res.redirect("/dashboard");
+    } else {
+      // If the user is not authenticated, proceed to render the index page
+      return next();
+    }
+  },
+  async (req, res) => {
+    try {
+      // Set cache-control headers
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
 
-    res.render("admin/index", { locals, layout: adminLayout });
-  } catch (error) {
-    console.log(error);
+      const locals = {
+        title: "Friendly Bet",
+        description: "Welcome",
+      };
+
+      res.render("admin/index", { locals, layout: adminLayout });
+    } catch (error) {
+      console.log(error);
+    }
   }
-});
+);
 
 /**
  * GET/
@@ -67,7 +85,7 @@ const authMiddleware = (req, res, next) => {
 
 /**
  * POST/
- * Admin - Check Signin
+ * Admin - Check Credentials Signin
  */
 
 router.post("/admin", async (req, res) => {
@@ -84,7 +102,7 @@ router.post("/admin", async (req, res) => {
 
     const token = jwt.sign({ userId: user._id }, jwtSecret);
     res.cookie("token", token, { httpOnly: true });
-    res.redirect("/dashboard");
+    res.redirect(`/dashboard`);
   } catch (error) {
     console.log(error);
   }
@@ -97,12 +115,19 @@ router.post("/admin", async (req, res) => {
 
 router.get("/dashboard", authMiddleware, async (req, res) => {
   try {
+    const userId = req.userId;
+
+    const data = await Bet.find({ participants: userId }).populate(
+      "participants"
+    );
+
     const locals = {
       title: "Dashboard",
       description: "All your Bets",
     };
-    const data = await Bet.find().populate("participants");
+
     res.render("admin/dashboard", {
+      userId,
       layout: adminLayout,
       locals,
       data,
