@@ -84,31 +84,6 @@ const authMiddleware = (req, res, next) => {
 };
 
 /**
- * POST/
- * Admin - Check Credentials Signin
- */
-
-router.post("/admin", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-
-    const token = jwt.sign({ userId: user._id }, jwtSecret);
-    res.cookie("token", token, { httpOnly: true });
-    res.redirect(`/dashboard`);
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-/**
  * Get/
  * Admin - Dashboard
  */
@@ -133,6 +108,16 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
       data,
     });
   } catch (error) {}
+});
+
+/**
+ * GET/
+ * Admin - Logout
+ */
+
+router.get("/logout", (req, res) => {
+  res.clearCookie("token");
+  res.redirect("/");
 });
 
 /**
@@ -164,13 +149,94 @@ router.post("/register", async (req, res) => {
 });
 
 /**
- * GET/
- * Admin - Logout
+ * POST/
+ * Admin - Check Credentials Signin
  */
 
-router.get("/logout", (req, res) => {
-  res.clearCookie("token");
-  res.redirect("/");
+router.post("/admin", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign({ userId: user._id }, jwtSecret);
+    res.cookie("token", token, { httpOnly: true });
+    res.redirect(`/dashboard`);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+/**
+ * POST /
+ * App routes - Bet choice
+ */
+
+router.post("/betchoice", authMiddleware, async (req, res) => {
+  try {
+    const { specific, entire } = req.body;
+    const betDate = new Date().toLocaleString();
+
+    // Retrieve the existing bet data from the session or cookie
+    let betData = req.session.betData || {};
+
+    // Update the bet data with the new information
+    betData = {
+      ...betData,
+      initiator: req.userId,
+      betType: specific ? "match" : "matchDay",
+      participants: [req.userId],
+      betDate,
+    };
+
+    // Save the updated bet data to the session or cookie
+    req.session.betData = betData;
+    console.log(betData);
+
+    let redirectUrl = "/betgame";
+
+    if (entire) {
+      redirectUrl = "/betmatchd";
+    }
+    res.redirect(redirectUrl);
+  } catch (error) {
+    console.error("Error handling form submission:", error);
+  }
+});
+
+/**
+ * POST /
+ * App routes - Match choice
+ */
+
+router.post("/betgame", (req, res) => {
+  try {
+    const { game } = req.body;
+
+    const match = {
+      gameChoice: game,
+    };
+
+    let betData = req.session.betData || {};
+
+    betData = {
+      ...betData,
+      match,
+    };
+
+    req.session.betData = betData;
+    console.log(betData);
+
+    res.redirect("/betype");
+  } catch (error) {
+    console.error("Error handling form submission:", error);
+  }
 });
 
 module.exports = router;

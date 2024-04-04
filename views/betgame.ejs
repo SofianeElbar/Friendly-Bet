@@ -1,35 +1,61 @@
 <div class="purpose">
   <div class="purpose__advice">
     <h1 class="bet__welcome">What game do you want to bet on?</h1>
-    <form class="bet__body">
-      <label for="specific">
+
+    <% let previousDate = null; %> <% matches.forEach((match, index) => { %> <%
+    const matchDate = new Date(match.utcDate); %> <% const matchTime =
+    matchDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); %>
+    <% const matchDay = matchDate.toDateString(); %> <% if (matchDay !==
+    previousDate) { %>
+    <p><%= matchDay %></p>
+    <% previousDate = matchDay; %> <% } %>
+
+    <form
+      id="betForm<%= index %>"
+      class="bet__body"
+      action="/betgame"
+      method="post"
+    >
+      <label for="game<%= index %>">
         <input
-          type="checkbox"
-          id="specific"
-          name="specific"
-          value="specific"
-        />Manchester United - Chelsea</label
-      >
-      <label for="entire"
-        ><input type="checkbox" id="entire" name="entire" value="entire" /> game
-        2</label
-      >
-      <label for="entire"
-        ><input type="checkbox" id="entire" name="entire" value="entire" /> game
-        3</label
-      >
-      <label for="entire"
-        ><input type="checkbox" id="entire" name="entire" value="entire" /> game
-        4</label
-      ><br />
-    </form>
-    <div class="bet__btn">
+          type="radio"
+          id="game<%= index %>"
+          name="game"
+          value="<%= match.homeTeam.shortName %> - <%= match.awayTeam.shortName  %> - <%= matchTime %>"
+        />
+        <%= match.homeTeam.shortName %> - <%= match.awayTeam.shortName %> at <%=
+        matchTime %>
+      </label>
+      <% }); %>
+      <br />
+    <div id="submitBtn" class="bet__btn">
       <button class="bet__button">Ok</button>
     </div>
   </div>
+    </form>
+   
+
+   
   <img
     src="/img/friends_joy.jpg"
     alt="a group of friends laughing"
     class="purpose__image"
   />
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const forms = document.querySelectorAll("[id^='betForm']");
+    forms.forEach((form) => {
+      form.addEventListener("submit", function (event) {
+        // Get the selected radio button
+        const selectedGame = form.querySelector('input[name="game"]:checked');
+
+        if (!selectedGame) {
+          event.preventDefault();
+          alert("Please select a game.");
+        }
+      });
+    });
+  });
+</script>

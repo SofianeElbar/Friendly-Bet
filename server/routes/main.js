@@ -1,14 +1,160 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("axios");
 const Bet = require("../models/Bet");
 const User = require("../models/User");
+const apiKey = process.env.API_TOKEN;
+const moment = require("moment-timezone");
 
-// router.get("/modal", async (req, res) => {
+/**
+ * GET /
+ * App routes
+ */
+
+router.get("/betchoice", (req, res) => {
+  res.render("betchoice");
+});
+
+router.get("/betgame", async (req, res) => {
+  try {
+    // Fetch matches
+    const response = await axios.get(
+      `https://api.football-data.org/v4/competitions/PL/matches`,
+      {
+        headers: {
+          "X-Auth-Token": apiKey,
+        },
+      }
+    );
+
+    const data = response.data;
+
+    // Find the maximum matchday value among the matches
+    let currentMatchday = 1;
+    data.matches.forEach((match) => {
+      currentMatchday = Math.max(currentMatchday, match.matchday);
+    });
+
+    // Filter out matches of the current matchday that have not started yet
+    const currentDate = new Date();
+    const upcomingMatches = data.matches.filter(
+      (match) =>
+        match.matchday === currentMatchday &&
+        new Date(match.utcDate) > currentDate
+    );
+
+    // If there are no upcoming matches for the current matchday, switch to the next matchday
+    if (upcomingMatches.length === 0) {
+      const nextMatchday = currentMatchday + 1;
+
+      // Make a new API request with the next matchday
+      const nextMatchdayResponse = await axios.get(
+        `https://api.football-data.org/v4/competitions/PL/matches?matchday=${nextMatchday}`,
+        {
+          headers: {
+            "X-Auth-Token": apiKey,
+          },
+        }
+      );
+
+      console.log("Next matchday response data:", nextMatchdayResponse.data);
+
+      // Filter out matches of the next matchday that have not started yet
+      const nextMatchdayMatches = nextMatchdayResponse.data.matches.filter(
+        (match) => new Date(match.utcDate) > currentDate
+      );
+
+      // If there are no upcoming matches for the next matchday, render an appropriate message
+      if (nextMatchdayMatches.length === 0) {
+        res.render("betgame", { message: "There are no upcoming matches." });
+      } else {
+        // Render the page with the matches of the next matchday
+        res.render("betgame", { matches: nextMatchdayMatches });
+      }
+    } else {
+      // Render the page with the upcoming matches of the current matchday
+      res.render("betgame", { matches: upcomingMatches });
+    }
+  } catch (error) {
+    console.error("Error fetching Premier League matches:", error);
+  }
+});
+
+// router.get("/betgame", async (req, res) => {
 //   try {
-//   } catch (error) {}
+//     const response = await axios.get(
+//       "https://api.football-data.org/v4/competitions/PL/matches?matchday=35",
+//       {
+//         headers: {
+//           "X-Auth-Token": apiKey,
+//         },
+//       }
+//     );
 
-//   res.render("modal");
+//     const data = response.data;
+//     const matches = data.matches.map((match) => {
+//       const matchDate = new Date(match.utcDate);
+//       const formattedTime = matchDate.toLocaleTimeString("en-GB", {
+//         hour: "numeric",
+//         minute: "numeric",
+//       });
+//       const currentDate = matchDate.toDateString();
+//       return {
+//         ...match,
+//         formattedTime,
+//         currentDate,
+//       };
+//     });
+
+//     res.render("betgame", { matches });
+//   } catch (error) {
+//     console.error("Error fetching Premier League matches:", error);
+//   }
 // });
+
+router.get("/betype", (req, res) => {
+  res.render("betype");
+});
+
+router.get("/betfs", (req, res) => {
+  res.render("betfs");
+});
+
+router.get("/betwt", (req, res) => {
+  res.render("betwt");
+});
+
+router.get("/betgoals", (req, res) => {
+  res.render("betgoals");
+});
+
+router.get("/betycards", (req, res) => {
+  res.render("betycards");
+});
+
+router.get("/betmatchd", (req, res) => {
+  res.render("betmatchd");
+});
+
+router.get("/betmatchdg", (req, res) => {
+  res.render("betmatchdg");
+});
+
+router.get("/betmatchdy", (req, res) => {
+  res.render("betmatchdy");
+});
+
+router.get("/betmatchdr", (req, res) => {
+  res.render("betmatchdr");
+});
+
+router.get("/betclean", (req, res) => {
+  res.render("betclean");
+});
+
+router.get("/yourbet", (req, res) => {
+  res.render("yourbet");
+});
 
 // function insertUserData() {
 //   User.insertMany([
@@ -56,99 +202,47 @@ const User = require("../models/User");
  * Bet :id
  */
 
-router.get("/bet/:id", async (req, res) => {
-  try {
-    let slug = req.params.id;
+// router.get("/bet/:id", async (req, res) => {
+//   try {
+//     let slug = req.params.id;
 
-    const data = await Bet.findById({ _id: slug }).populate("participants");
+//     const data = await Bet.findById({ _id: slug }).populate("participants");
 
-    const locals = {
-      betType: data.betType,
-      participants: data.participants,
-      stakes: data.stakes,
-    };
+//     const locals = {
+//       betType: data.betType,
+//       participants: data.participants,
+//       stakes: data.stakes,
+//     };
 
-    res.render("bet", {
-      locals,
-      data,
-      currentRoute: `/bet/${slug}`,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-});
+//     res.render("bet", {
+//       locals,
+//       data,
+//       currentRoute: `/bet/${slug}`,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
 /**
  * GET /
  * User :id
  */
 
-router.get("/user/:id", async (req, res) => {
-  try {
-    let slug = req.params.id;
+// router.get("/user/:id", async (req, res) => {
+//   try {
+//     let slug = req.params.id;
 
-    const data = await User.findById({ _id: slug });
+//     const data = await User.findById({ _id: slug });
 
-    res.render("user", {
-      locals,
-      data,
-      currentRoute: `/user/${slug}`,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-});
-
-router.get("/betchoice", (req, res) => {
-  res.render("betchoice");
-});
-
-router.get("/betgame", (req, res) => {
-  res.render("betgame");
-});
-
-router.get("/betype", (req, res) => {
-  res.render("betype");
-});
-
-router.get("/betfs", (req, res) => {
-  res.render("betfs");
-});
-
-router.get("/betwt", (req, res) => {
-  res.render("betwt");
-});
-
-router.get("/betgoals", (req, res) => {
-  res.render("betgoals");
-});
-
-router.get("/betycards", (req, res) => {
-  res.render("betycards");
-});
-
-router.get("/betmatchd", (req, res) => {
-  res.render("betmatchd");
-});
-
-router.get("/betmatchdg", (req, res) => {
-  res.render("betmatchdg");
-});
-
-router.get("/betmatchdy", (req, res) => {
-  res.render("betmatchdy");
-});
-
-router.get("/betmatchdr", (req, res) => {
-  res.render("betmatchdr");
-});
-
-router.get("/betclean", (req, res) => {
-  res.render("betclean");
-});
-
-router.get("/yourbet", (req, res) => {
-  res.render("yourbet");
-});
+//     res.render("user", {
+//       locals,
+//       data,
+//       currentRoute: `/user/${slug}`,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
 module.exports = router;

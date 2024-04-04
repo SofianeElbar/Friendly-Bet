@@ -27,9 +27,18 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGODB_URI,
     }),
-    cookie: { maxAge: new Date(Date.now() + 3600000) },
+    cookie: { maxAge: 600000 },
   })
 );
+
+const addApiKey = (req, res, next) => {
+  const apiKey = process.env.API_TOKEN;
+
+  req.headers["X-Auth-Token"] = apiKey;
+
+  next();
+};
+app.use(addApiKey);
 
 app.use(express.static("public"));
 

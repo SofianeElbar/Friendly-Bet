@@ -3,7 +3,7 @@
     <h1 class="bet__welcome">
       Do you want to bet on a specific game or the entire matchday?
     </h1>
-    <form class="bet__body">
+    <form id="bet__body" action="/betchoice" method="POST">
       <label for="specific">
         <input
           type="checkbox"
@@ -17,10 +17,10 @@
         ><input type="checkbox" id="entire" name="entire" value="entire" />The
         entire game week</label
       ><br />
+      <div id="submitButton" class="bet__btn">
+        <button class="bet__button">Ok</button>
+      </div>
     </form>
-    <div class="bet__btn">
-      <button class="bet__button">Ok</button>
-    </div>
   </div>
   <img
     src="/img/friends_joy.jpg"
@@ -28,3 +28,31 @@
     class="purpose__image"
   />
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const specificCheckbox = document.getElementById("specific");
+    const entireCheckbox = document.getElementById("entire");
+    const submitButton = document.getElementById("submitButton");
+
+    specificCheckbox.addEventListener("change", function () {
+      if (this.checked) {
+        entireCheckbox.checked = false; // Uncheck the entireCheckbox
+      }
+    });
+
+    entireCheckbox.addEventListener("change", function () {
+      if (this.checked) {
+        specificCheckbox.checked = false; // Uncheck the specificCheckbox
+      }
+    });
+
+    submitButton.addEventListener("click", function () {
+      // Check if either specific or entire checkbox is checked
+      if (!specificCheckbox.checked && !entireCheckbox.checked) {
+        alert("Please select an option."); // Display an alert if no checkbox is checked
+        event.preventDefault(); // Prevent form submission if no checkbox is checked
+      }
+    });
+  });
+</script>
