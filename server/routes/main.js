@@ -29,11 +29,9 @@ router.get("/betgame", async (req, res) => {
 
     const data = response.data;
 
-    // Find the maximum matchday value among the matches
-    let currentMatchday = 1;
-    data.matches.forEach((match) => {
-      currentMatchday = Math.max(currentMatchday, match.matchday);
-    });
+    // Extract the current matchday from one of the matches
+    const currentMatchday =
+      data.matches.length > 0 ? data.matches[0].season.currentMatchday : 1;
 
     // Filter out matches of the current matchday that have not started yet
     const currentDate = new Date();
@@ -64,7 +62,7 @@ router.get("/betgame", async (req, res) => {
         (match) => new Date(match.utcDate) > currentDate
       );
 
-      // If there are no upcoming matches for the next matchday, render an appropriate message
+      // If there are no upcoming matches for the next matchday/end of the season
       if (nextMatchdayMatches.length === 0) {
         res.render("betgame", { message: "There are no upcoming matches." });
       } else {
