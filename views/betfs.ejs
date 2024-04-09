@@ -1,14 +1,14 @@
 <div class="purpose">
   <div class="purpose__advice">
     <h1 class="bet__welcome">
-      What do you think the final score of Manchester United - Chelsea will be,
-      starting with the home team's score?
+      What do you think the final score of <%= betData.match.gameChoice %> will
+      be, starting with the home team's score?
     </h1>
     <p class="bet__fs">
       Please write the score by separating both number of goals by a hyphen
-      (e.g. "2-1")
+      without space between (e.g. "2-1")
     </p>
-    <form action="" class="betfs__body">
+    <form id="betfsForm" action="/betfs" method="post" class="betfs__body">
       <input
         type="text"
         id="betfs"
@@ -28,3 +28,23 @@
     class="purpose__image"
   />
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("betfsForm");
+
+    form.addEventListener("submit", function (event) {
+      const betfsInput = document.getElementById("betfs");
+      const betfsValue = betfsInput.value.trim();
+
+      const scorePattern = /^\d+-\d+$/;
+
+      if (!scorePattern.test(betfsValue)) {
+        event.preventDefault();
+        alert(
+          "Please enter the final score in the format 'number-number' without space between. For example: '2-1'."
+        );
+      }
+    });
+  });
+</script>

@@ -239,4 +239,67 @@ router.post("/betgame", (req, res) => {
   }
 });
 
+/**
+ * POST /
+ * App routes - Match bet choice
+ */
+
+router.post("/betype", (req, res) => {
+  try {
+    const { betype } = req.body;
+
+    let betData = req.session.betData || {};
+
+    switch (betype) {
+      case "finalScore":
+        betData.match.betChoice = { finalScore: "" };
+        break;
+      case "winTeam":
+        betData.match.betChoice = { winTeam: "" };
+        break;
+      case "nberGoals":
+        betData.match.betChoice = { nberGoals: 0 };
+        break;
+      case "nberYcards":
+        betData.match.betChoice = { nberYcards: 0 };
+        break;
+      default:
+        betData.match.betChoice = {};
+    }
+
+    req.session.betData = betData;
+    console.log(betData);
+
+    res.redirect("/betfs");
+  } catch (error) {
+    console.error("Error handling form submission:", error);
+  }
+});
+
+/**
+ * POST /
+ * App routes - Final score bet
+ */
+
+router.post("/betfs", (req, res) => {
+  try {
+    let { betfs } = req.body;
+
+    betfs = betfs.trim();
+
+    let betData = req.session.betData || {};
+
+    betData.match.betChoice = {
+      finalScore: betfs,
+    };
+
+    req.session.betData = betData;
+    console.log(betData);
+
+    res.redirect("/yourbet");
+  } catch (error) {
+    console.error("Error handling form submission:", error);
+  }
+});
+
 module.exports = router;

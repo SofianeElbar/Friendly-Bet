@@ -1,29 +1,30 @@
 <div class="purpose">
   <div class="purpose__advice">
     <h1 class="bet__welcome">
-      What type of bet would you like to create for Manchester United - Chelsea?
+      What type of bet would you like to create for <%= betData.match.gameChoice
+      %>?
     </h1>
-    <form class="bet__body">
+    <form id="betTypeform" class="bet__body" action="/betype" method="post">
       <label for="fs">
-        <input type="checkbox" id="fs" name="fs" value="fscore" />Final
+        <input type="radio" id="fs" name="betype" value="finalScore" />Final
         score</label
       >
       <label for="wt"
-        ><input type="checkbox" id="wt" name="wt" value="wteam" />Winning
+        ><input type="radio" id="wt" name="betype" value="winTeam" />Winning
         team</label
       >
       <label for="ng"
-        ><input type="checkbox" id="ng" name="ng" value="ngoals" />Number of
+        ><input type="radio" id="ng" name="betype" value="nberGoals" />Number of
         goals</label
       >
       <label for="yc"
-        ><input type="checkbox" id="yc" name="yc" value="ycards" />Yellow
+        ><input type="radio" id="yc" name="betype" value="nberYcards" />Yellow
         cards</label
       ><br />
+      <div class="bet__btn">
+        <button class="bet__button">Ok</button>
+      </div>
     </form>
-    <div class="bet__btn">
-      <button class="bet__button">Ok</button>
-    </div>
   </div>
   <img
     src="/img/friends_joy.jpg"
@@ -31,3 +32,19 @@
     class="purpose__image"
   />
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("betTypeform");
+
+    form.addEventListener("submit", function (event) {
+      // Get the selected radio button
+      const selectedType = form.querySelector('input[name="betype"]:checked');
+
+      if (!selectedType) {
+        event.preventDefault();
+        alert("Please select your type of bet for this game.");
+      }
+    });
+  });
+</script>

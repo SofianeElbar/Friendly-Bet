@@ -55,8 +55,6 @@ router.get("/betgame", async (req, res) => {
         }
       );
 
-      console.log("Next matchday response data:", nextMatchdayResponse.data);
-
       // Filter out matches of the next matchday that have not started yet
       const nextMatchdayMatches = nextMatchdayResponse.data.matches.filter(
         (match) => new Date(match.utcDate) > currentDate
@@ -111,11 +109,31 @@ router.get("/betgame", async (req, res) => {
 // });
 
 router.get("/betype", (req, res) => {
-  res.render("betype");
+  try {
+    const betData = req.session.betData;
+
+    if (!betData || !betData.match || !betData.match.gameChoice) {
+      return res.status(404).send("Bet data not found");
+    }
+
+    res.render("betype", { betData });
+  } catch (error) {
+    console.error("Error rendering betype page:", error);
+  }
 });
 
 router.get("/betfs", (req, res) => {
-  res.render("betfs");
+  try {
+    const betData = req.session.betData;
+
+    if (!betData || !betData.match || !betData.match.gameChoice) {
+      return res.status(404).send("Bet data not found");
+    }
+
+    res.render("betfs", { betData });
+  } catch (error) {
+    console.error("Error rendering betype page:", error);
+  }
 });
 
 router.get("/betwt", (req, res) => {
