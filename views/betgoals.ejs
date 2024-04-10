@@ -1,9 +1,10 @@
 <div class="purpose">
   <div class="purpose__advice">
     <h1 class="bet__welcome">
-      How many goals do you think will be score in Manchester United - Chelsea?
+      How many goals do you think will be score in <%= betData.match.gameChoice
+      %> ?
     </h1>
-    <form action="" class="betfs__body">
+    <form id="betGoals" action="/betgoals" method="post" class="betfs__body">
       <input
         type="text"
         id="betfg"
@@ -22,3 +23,23 @@
     class="purpose__image"
   />
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("betGoals");
+
+    form.addEventListener("submit", function (event) {
+      const betgInput = document.getElementById("betfg");
+      const betgValue = betgInput.value.trim();
+
+      const scorePattern = /^\d+$/;
+
+      if (!scorePattern.test(betgValue)) {
+        event.preventDefault();
+        alert(
+          "Please enter the number of goals in a number format without space or any character in between, for exemple: '10'."
+        );
+      }
+    });
+  });
+</script>

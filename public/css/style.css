@@ -63,6 +63,17 @@ select,
   cursor: pointer;
 }
 
+.teamSelect1 {
+  background-color: transparent;
+  color: var(--blue);
+  border: 1px solid var(--gray);
+}
+
+.teamSelect1:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
 .btn:hover {
   background-color: rgb(97, 97, 185);
 }
@@ -93,6 +104,18 @@ label {
 label:hover {
   background-color: #199ad3;
   cursor: pointer;
+}
+
+.teamSelect {
+  background-color: transparent;
+  border: none;
+  color: black;
+  font-size: var(--font-size-md);
+}
+
+.teamSelect:hover {
+  background-color: transparent;
+  cursor: auto;
 }
 
 form {

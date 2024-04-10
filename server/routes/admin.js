@@ -270,7 +270,15 @@ router.post("/betype", (req, res) => {
     req.session.betData = betData;
     console.log(betData);
 
-    res.redirect("/betfs");
+    if (betData.match.betChoice.finalScore !== undefined) {
+      res.redirect("/betfs");
+    } else if (betData.match.betChoice.winTeam !== undefined) {
+      res.redirect("/betwt");
+    } else if (betData.match.betChoice.nberGoals !== undefined) {
+      res.redirect("/betgoals");
+    } else {
+      res.redirect("/betycards");
+    }
   } catch (error) {
     console.error("Error handling form submission:", error);
   }
@@ -291,6 +299,56 @@ router.post("/betfs", (req, res) => {
 
     betData.match.betChoice = {
       finalScore: betfs,
+    };
+
+    req.session.betData = betData;
+    console.log(betData);
+
+    res.redirect("/yourbet");
+  } catch (error) {
+    console.error("Error handling form submission:", error);
+  }
+});
+
+/**
+ * POST /
+ * App routes - Winning team bet
+ */
+
+router.post("/betwt", (req, res) => {
+  try {
+    let { teamSelect } = req.body;
+
+    let betData = req.session.betData || {};
+
+    betData.match.betChoice = {
+      winTeam: teamSelect,
+    };
+
+    req.session.betData = betData;
+    console.log(betData);
+
+    res.redirect("/yourbet");
+  } catch (error) {
+    console.error("Error handling form submission:", error);
+  }
+});
+
+/**
+ * POST /
+ * App routes - Match number of goals bet
+ */
+
+router.post("/betgoals", (req, res) => {
+  try {
+    let { betfg } = req.body;
+
+    betfg = betfg.trim();
+
+    let betData = req.session.betData || {};
+
+    betData.match.betChoice = {
+      nberGoals: betfg,
     };
 
     req.session.betData = betData;

@@ -76,38 +76,6 @@ router.get("/betgame", async (req, res) => {
   }
 });
 
-// router.get("/betgame", async (req, res) => {
-//   try {
-//     const response = await axios.get(
-//       "https://api.football-data.org/v4/competitions/PL/matches?matchday=35",
-//       {
-//         headers: {
-//           "X-Auth-Token": apiKey,
-//         },
-//       }
-//     );
-
-//     const data = response.data;
-//     const matches = data.matches.map((match) => {
-//       const matchDate = new Date(match.utcDate);
-//       const formattedTime = matchDate.toLocaleTimeString("en-GB", {
-//         hour: "numeric",
-//         minute: "numeric",
-//       });
-//       const currentDate = matchDate.toDateString();
-//       return {
-//         ...match,
-//         formattedTime,
-//         currentDate,
-//       };
-//     });
-
-//     res.render("betgame", { matches });
-//   } catch (error) {
-//     console.error("Error fetching Premier League matches:", error);
-//   }
-// });
-
 router.get("/betype", (req, res) => {
   try {
     const betData = req.session.betData;
@@ -137,15 +105,45 @@ router.get("/betfs", (req, res) => {
 });
 
 router.get("/betwt", (req, res) => {
-  res.render("betwt");
+  try {
+    const betData = req.session.betData;
+
+    if (!betData || !betData.match || !betData.match.gameChoice) {
+      return res.status(404).send("Bet data not found");
+    }
+
+    res.render("betwt", { betData });
+  } catch (error) {
+    console.error("Error rendering betype page:", error);
+  }
 });
 
 router.get("/betgoals", (req, res) => {
-  res.render("betgoals");
+  try {
+    const betData = req.session.betData;
+
+    if (!betData || !betData.match || !betData.match.gameChoice) {
+      return res.status(404).send("Bet data not found");
+    }
+
+    res.render("betgoals", { betData });
+  } catch (error) {
+    console.error("Error rendering betype page:", error);
+  }
 });
 
 router.get("/betycards", (req, res) => {
-  res.render("betycards");
+  try {
+    const betData = req.session.betData;
+
+    if (!betData || !betData.match || !betData.match.gameChoice) {
+      return res.status(404).send("Bet data not found");
+    }
+
+    res.render("betycards", { betData });
+  } catch (error) {
+    console.error("Error rendering betype page:", error);
+  }
 });
 
 router.get("/betmatchd", (req, res) => {

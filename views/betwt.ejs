@@ -6,15 +6,11 @@
   />
   <div class="purpose__advice">
     <h1 class="bet__welcome">
-      Which team are you betting on to win Manchester United - Chelsea?
+      Which team are you betting on to win <%= betData.match.gameChoice %> ?
     </h1>
-    <form action="" class="betfs__body">
-      <input
-        type="text"
-        id="betwt"
-        name="betwt"
-        placeholder="Type your answer here..."
-      />
+    <form action="/betwt" method="post" class="betfs__body">
+      <label for="teamSelect" class="teamSelect">Select a team:</label>
+      <select id="teamSelect" class="teamSelect1" name="teamSelect"></select>
 
       <br />
       <div class="bet__btn">
@@ -23,3 +19,24 @@
     </form>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const teamSelect = document.getElementById("teamSelect");
+    const gameChoice = "<%= betData.match.gameChoice %>";
+
+    // Remove the scheduled time (e.g., "at 16:00")
+    const teamNames = gameChoice.split(" at ")[0];
+
+    // Split the gameChoice to get both team names
+    const teams = teamNames.split(" - ");
+
+    // Populate the select element with options
+    teams.forEach(function (teamName) {
+      const option = document.createElement("option");
+      option.value = teamName;
+      option.textContent = teamName;
+      teamSelect.appendChild(option);
+    });
+  });
+</script>
