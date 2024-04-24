@@ -23,7 +23,7 @@ const betSchema = new mongoose.Schema({
     cleanSheets: { type: Number }, // Nombre total de clean sheets prédits (pour les paris quotidiens)
   },
   participants: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Participants au pari
-  stakes: { type: Number }, // Montant de la mise
+  stake: { type: Number }, // Montant de la mise
 });
 
 module.exports = mongoose.model("Bet", betSchema);

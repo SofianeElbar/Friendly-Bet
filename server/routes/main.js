@@ -12,7 +12,18 @@ const moment = require("moment-timezone");
  */
 
 router.get("/betchoice", (req, res) => {
-  res.render("betchoice");
+  try {
+    // Destroy the current session to clear all data
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Error destroying session:", err);
+        return;
+      }
+      res.render("betchoice");
+    });
+  } catch (error) {
+    console.error("Error handling bet choice:", error);
+  }
 });
 
 router.get("/betgame", async (req, res) => {

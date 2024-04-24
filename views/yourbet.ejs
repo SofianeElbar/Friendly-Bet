@@ -1,10 +1,10 @@
 <div class="yourbet">
   <h1 class="bet__welcome">How much do you bet?</h1>
-  <form action="" class="betfs__body">
+  <form id="yourbet" action="/yourbet" method="post" class="moneyBet__body">
     <input
       type="text"
-      id="yourbet"
-      name="yourbet"
+      id="moneyBet"
+      name="moneyBet"
       placeholder="Enter your amount here..."
     />
 
@@ -14,3 +14,23 @@
     </div>
   </form>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("yourbet");
+
+    form.addEventListener("submit", function (event) {
+      const moneyBetInput = document.getElementById("moneyBet");
+      const moneyBetValue = moneyBetInput.value.trim();
+
+      const moneyBetPattern = /^\d+$/;
+
+      if (!moneyBetPattern.test(moneyBetValue)) {
+        event.preventDefault();
+        alert(
+          "Please enter your bet in a number format without space or any character in between, for exemple: '10'."
+        );
+      }
+    });
+  });
+</script>

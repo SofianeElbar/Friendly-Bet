@@ -360,4 +360,59 @@ router.post("/betgoals", (req, res) => {
   }
 });
 
+/**
+ * POST /
+ * App routes - Match number of yellow cards
+ */
+
+router.post("/betycards", (req, res) => {
+  try {
+    let { betyc } = req.body;
+
+    betyc = betyc.trim();
+
+    let betData = req.session.betData || {};
+
+    betData.match.betChoice = {
+      nberYcards: betyc,
+    };
+
+    req.session.betData = betData;
+    console.log(betData);
+
+    res.redirect("/yourbet");
+  } catch (error) {
+    console.error("Error handling form submission:", error);
+  }
+});
+
+/**
+ * POST /
+ * App routes - Money bet
+ */
+
+router.post("/yourbet", (req, res) => {
+  try {
+    let { moneyBet } = req.body;
+
+    moneyBet = moneyBet.trim();
+
+    const stake = moneyBet;
+
+    let betData = req.session.betData || {};
+
+    betData = {
+      ...betData,
+      stake,
+    };
+
+    req.session.betData = betData;
+    console.log(betData);
+
+    res.redirect("/yourbet");
+  } catch (error) {
+    console.error("Error handling form submission:", error);
+  }
+});
+
 module.exports = router;

@@ -9,7 +9,7 @@
       How many yellow cards do you think will be distributed in <%=
       betData.match.gameChoice %> ?
     </h1>
-    <form action="" class="betfs__body">
+    <form id="betYellow" action="/betycards" method="post" class="betyc__body">
       <input
         type="text"
         id="betyc"
@@ -24,3 +24,23 @@
     </form>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("betYellow");
+
+    form.addEventListener("submit", function (event) {
+      const betyInput = document.getElementById("betyc");
+      const betyValue = betyInput.value.trim();
+
+      const ycardsPattern = /^\d+$/;
+
+      if (!ycardsPattern.test(betyValue)) {
+        event.preventDefault();
+        alert(
+          "Please enter the number of yellow cards in a number format without space or any character in between, for exemple: '10'."
+        );
+      }
+    });
+  });
+</script>
