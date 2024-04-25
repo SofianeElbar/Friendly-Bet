@@ -1,17 +1,29 @@
 <div class="admin-title">
   <%- include('../partials/header_admin.ejs') %>
-  <h2>Bets</h2>
-  <a href="betchoice" class="button">+ Create a new Bet</a>
+  <h2>Your Bets</h2>
 </div>
 
+<% data.forEach(bet => { %>
 <ul class="admin-bet">
-  <% data.forEach(bet => { %>
-  <li><%= bet.betType %></li>
-  <% bet.participants.forEach(participant => { %>
-  <li><%= participant.username %></li>
-  <% }) %>
-  <li><%= bet.stake %></li>
-  <% }) %>
+  <li>Bet type : <%= bet.betType %></li>
+  <li><%= bet.match.gameChoice %></li>
+  <li>
+    <%= JSON.stringify(bet.match.betChoice) .replace(/[{}]/g, '') .replace(/"/g,
+    '') .replace(/:/g, ' : ') %>
+  </li>
+  <li>Stake : <%= bet.stake %></li>
+  <li>Participants :</li>
+  <% bet.participants.forEach(participant => { %> <%= participant.username %> <%
+  }) %>
+  <li>
+    Date : <%= new Date(bet.betDate).toLocaleString('en-GB', { weekday: 'short',
+    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:
+    '2-digit', hour12: false }) %>
+  </li>
+  <a href="">Challenge your friends for this bet</a>
 </ul>
+<% }) %>
 
-<script></script>
+<div class="createBet">
+  <a href="betchoice" class="button">+ Create a new Bet</a>
+</div>

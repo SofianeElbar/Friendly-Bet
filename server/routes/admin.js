@@ -391,7 +391,17 @@ router.post("/betycards", (req, res) => {
  * App routes - Money bet
  */
 
-router.post("/yourbet", (req, res) => {
+// Function to convert date from "DD/MM/YYYY HH:mm:ss" to "YYYY-MM-DDTHH:mm:ss" format
+const formatBetDate = (dateString) => {
+  const [datePart, timePart] = dateString.split(" ");
+  const [day, month, year] = datePart.split("/");
+  const formattedDatePart = `${year}-${month}-${day}`;
+  const formattedDate = `${formattedDatePart}T${timePart}`;
+
+  return new Date(formattedDate);
+};
+
+router.post("/yourbet", async (req, res) => {
   try {
     let { moneyBet } = req.body;
 
@@ -406,10 +416,15 @@ router.post("/yourbet", (req, res) => {
       stake,
     };
 
-    req.session.betData = betData;
+    // req.session.betData = betData;
     console.log(betData);
 
-    res.redirect("/yourbet");
+    betData.betDate = formatBetDate(betData.betDate);
+    const newBet = new Bet(betData);
+    await newBet.save();
+    req.session.betData = null;
+
+    res.redirect("/dashboard");
   } catch (error) {
     console.error("Error handling form submission:", error);
   }
