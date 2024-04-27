@@ -4,7 +4,6 @@ const axios = require("axios");
 const Bet = require("../models/Bet");
 const User = require("../models/User");
 const apiKey = process.env.API_TOKEN;
-const moment = require("moment-timezone");
 
 /**
  * GET /
@@ -96,64 +95,6 @@ router.get("/betgame", async (req, res) => {
     console.error("Error fetching Premier League matches:", error);
     res.render("betgame", { message: "Error fetching matches." });
   }
-  //   try {
-  //     // Fetch matches
-  //     const response = await axios.get(
-  //       `https://api.football-data.org/v4/competitions/PL/matches`,
-  //       {
-  //         headers: {
-  //           "X-Auth-Token": apiKey,
-  //         },
-  //       }
-  //     );
-
-  //     const data = response.data;
-
-  //     // Extract the current matchday from one of the matches
-  //     const currentMatchday =
-  //       data.matches.length > 0 ? data.matches[0].season.currentMatchday : 1;
-
-  //     // Filter out matches of the current matchday that have not started yet
-  //     const currentDate = new Date();
-  //     const upcomingMatches = data.matches.filter(
-  //       (match) =>
-  //         match.matchday === currentMatchday &&
-  //         new Date(match.utcDate) > currentDate
-  //     );
-
-  //     // If there are no upcoming matches for the current matchday, switch to the next matchday
-  //     if (upcomingMatches.length === 0) {
-  //       const nextMatchday = currentMatchday + 1;
-
-  //       // Make a new API request with the next matchday
-  //       const nextMatchdayResponse = await axios.get(
-  //         `https://api.football-data.org/v4/competitions/PL/matches?matchday=${nextMatchday}`,
-  //         {
-  //           headers: {
-  //             "X-Auth-Token": apiKey,
-  //           },
-  //         }
-  //       );
-
-  //       // Filter out matches of the next matchday that have not started yet
-  //       const nextMatchdayMatches = nextMatchdayResponse.data.matches.filter(
-  //         (match) => new Date(match.utcDate) > currentDate
-  //       );
-
-  //       // If there are no upcoming matches for the next matchday/end of the season
-  //       if (nextMatchdayMatches.length === 0) {
-  //         res.render("betgame", { message: "There are no upcoming matches." });
-  //       } else {
-  //         // Render the page with the matches of the next matchday
-  //         res.render("betgame", { matches: nextMatchdayMatches });
-  //       }
-  //     } else {
-  //       // Render the page with the upcoming matches of the current matchday
-  //       res.render("betgame", { matches: upcomingMatches });
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching Premier League matches:", error);
-  //   }
 });
 
 router.get("/betype", (req, res) => {

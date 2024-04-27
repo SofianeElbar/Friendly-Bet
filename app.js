@@ -11,6 +11,15 @@ const connectDB = require("./server/config/db");
 const app = express();
 const PORT = 5000 || process.env.PORT;
 
+// API config
+const addApiKey = (req, res, next) => {
+  const apiKey = process.env.API_TOKEN;
+
+  req.headers["X-Auth-Token"] = apiKey;
+
+  next();
+};
+
 //Connect to DB
 connectDB();
 
@@ -31,15 +40,7 @@ app.use(
   })
 );
 
-const addApiKey = (req, res, next) => {
-  const apiKey = process.env.API_TOKEN;
-
-  req.headers["X-Auth-Token"] = apiKey;
-
-  next();
-};
 app.use(addApiKey);
-
 app.use(express.static("public"));
 
 //Templating Engine
