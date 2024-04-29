@@ -3,6 +3,7 @@ const router = express.Router();
 const axios = require("axios");
 const Bet = require("../models/Bet");
 const User = require("../models/User");
+const authMiddleware = require("../middlewares/authMiddleware.js");
 const apiKey = process.env.API_TOKEN;
 
 /**
@@ -189,6 +190,31 @@ router.get("/betclean", (req, res) => {
 
 router.get("/yourbet", (req, res) => {
   res.render("yourbet");
+});
+
+router.get("/invite", authMiddleware, async (req, res) => {
+  try {
+    const betId = req.query.betId;
+
+    if (!betId) {
+      return res.status(400).send("betId is required.");
+    }
+
+    const bet = await Bet.findById(betId);
+
+    if (!bet) {
+      return res.status(404).send("Bet not found.");
+    }
+
+    res.render("invite", {
+      userId: req.userId,
+      title: "Invite Friends",
+      betId,
+    });
+  } catch (error) {
+    console.error("Error handling invite GET request:", error);
+    res.status(500).send("An error occurred while loading the invite page.");
+  }
 });
 
 module.exports = router;

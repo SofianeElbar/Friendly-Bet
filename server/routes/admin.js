@@ -3,10 +3,10 @@ const router = express.Router();
 const Bet = require("../models/Bet");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const authMiddleware = require("../middlewares/authMiddleware");
+const sendBetInvitation = require("../services/mailer");
 
 const adminLayout = "../views/layouts/admin";
-const jwtSecret = process.env.JWT_SECRET;
 
 /**
  * GET/
@@ -61,27 +61,6 @@ router.get("/signup", async (req, res) => {
     console.log(error);
   }
 });
-
-/**
- *
- * Admin - Check token for Login
- */
-
-const authMiddleware = (req, res, next) => {
-  const token = req.cookies.token;
-
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  try {
-    const decoded = jwt.verify(token, jwtSecret);
-    req.userId = decoded.userId;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
-  }
-};
 
 /**
  * Get/
@@ -427,6 +406,45 @@ router.post("/yourbet", async (req, res) => {
     res.redirect("/dashboard");
   } catch (error) {
     console.error("Error handling form submission:", error);
+  }
+});
+
+/**
+ * POST /
+ * App routes - Invite friends page
+ */
+
+router.post("/invite", authMiddleware, async (req, res) => {
+  try {
+    const { emails } = req.body;
+    const betId = req.query.betId;
+
+    if (!betId) {
+      return res.status(400).send("betId is required.");
+    }
+
+    const bet = await Bet.findById(betId);
+
+    if (!bet) {
+      return res.status(404).send("Bet not found.");
+    }
+
+    const user = await User.findById(req.userId);
+
+    if (!user) {
+      return res.status(404).send("User not found.");
+    }
+
+    const emailList = emails.split(",").map((email) => email.trim());
+
+    for (const friendEmail of emailList) {
+      await sendBetInvitation(friendEmail, bet._id, user.username);
+    }
+
+    res.redirect("/dashboard");
+  } catch (error) {
+    console.error("Error handling invitation form submission:", error);
+    res.status(500).send("An error occurred while sending invitations.");
   }
 });
 

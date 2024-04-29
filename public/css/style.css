@@ -106,6 +106,16 @@ label:hover {
   cursor: pointer;
 }
 
+.email {
+  background-color: transparent;
+  border: none;
+}
+
+.email:hover {
+  background-color: transparent;
+  cursor: auto;
+}
+
 .teamSelect {
   background-color: transparent;
   border: none;

@@ -1,7 +1,7 @@
 require("dotenv").config();
+const nodemailer = require("nodemailer");
 
 // Mailing config
-const nodemailer = require("nodemailer");
 const transporter = nodemailer.createTransport({
   service: "gmail",
   host: "smtp.gmail.com",
@@ -13,15 +13,15 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function sendBetInvitation(userName) {
+async function sendBetInvitation(FriendEmail, betReference, userName) {
   try {
-    const inviteLink = `http://localhost:5000`;
+    const inviteLink = `http://localhost:5000/join?${betReference}`;
     const mailOptions = {
       from: {
         name: "Friendly Bet",
         address: process.env.ADMIN_USER,
       },
-      to: ["elsouf23@hotmail.com"],
+      to: [FriendEmail],
       subject: "You are invited to join a bet!",
       text: `Hello,
 
@@ -33,10 +33,11 @@ Best,
 Friendly Bet`,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log("Invitation email sent:", info.response);
+    const emailSend = await transporter.sendMail(mailOptions);
+    console.log("Invitation email sent:", emailSend.response);
   } catch (error) {
     console.error("Error sending invitation email:", error);
   }
 }
-sendBetInvitation("Sofiane");
+
+module.exports = sendBetInvitation;
