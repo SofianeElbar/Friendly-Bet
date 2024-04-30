@@ -5,6 +5,10 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const authMiddleware = require("../middlewares/authMiddleware");
 const sendBetInvitation = require("../services/mailer");
+const jwt = require("jsonwebtoken");
+const Token = require("../models/Token");
+const generateToken = require("../middlewares/tokenizer");
+const jwtSecret = process.env.JWT_SECRET;
 
 const adminLayout = "../views/layouts/admin";
 
@@ -435,10 +439,22 @@ router.post("/invite", authMiddleware, async (req, res) => {
       return res.status(404).send("User not found.");
     }
 
+    // Id bet Tokenization
+    const token = generateToken();
+    const expirationTime = new Date();
+    expirationTime.setHours(expirationTime.getHours() + 2);
+    const tokenEntry = new Token({
+      token: token,
+      betId: betId,
+      expiresAt: expirationTime,
+    });
+    await tokenEntry.save();
+
     const emailList = emails.split(",").map((email) => email.trim());
+    const inviteLink = `http://localhost:5000/join?token=${token}`;
 
     for (const friendEmail of emailList) {
-      await sendBetInvitation(friendEmail, bet._id, user.username);
+      await sendBetInvitation(friendEmail, inviteLink, user.username);
     }
 
     res.redirect("/dashboard");

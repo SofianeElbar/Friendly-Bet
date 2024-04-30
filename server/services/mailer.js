@@ -13,9 +13,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-async function sendBetInvitation(FriendEmail, betReference, userName) {
+async function sendBetInvitation(FriendEmail, inviteLink, userName) {
   try {
-    const inviteLink = `http://localhost:5000/join?${betReference}`;
     const mailOptions = {
       from: {
         name: "Friendly Bet",

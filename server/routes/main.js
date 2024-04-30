@@ -3,7 +3,7 @@ const router = express.Router();
 const axios = require("axios");
 const Bet = require("../models/Bet");
 const User = require("../models/User");
-const authMiddleware = require("../middlewares/authMiddleware.js");
+const authMiddleware = require("../middlewares/authMiddleware");
 const apiKey = process.env.API_TOKEN;
 
 /**
@@ -200,14 +200,7 @@ router.get("/invite", authMiddleware, async (req, res) => {
       return res.status(400).send("betId is required.");
     }
 
-    const bet = await Bet.findById(betId);
-
-    if (!bet) {
-      return res.status(404).send("Bet not found.");
-    }
-
     res.render("invite", {
-      userId: req.userId,
       title: "Invite Friends",
       betId,
     });
