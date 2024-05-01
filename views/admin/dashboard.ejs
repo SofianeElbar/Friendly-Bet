@@ -3,7 +3,7 @@
   <h2>Your Bets</h2>
 </div>
 
-<% data.forEach(bet => { %>
+<% data.forEach((bet, index) => { %>
 <ul class="admin-bet">
   <li>Bet type : <%= bet.betType %></li>
   <li><%= bet.match.gameChoice %></li>
@@ -20,7 +20,9 @@
     day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:
     '2-digit', hour12: false }) %>
   </li>
-  <a href="invite?betId=<%= bet._id %>">Challenge your friends for this bet</a>
+  <a href="/invite?action=generateToken&betId=<%= bet._id %>">
+    Challenge your friends for this bet
+  </a>
 </ul>
 <% }) %>
 

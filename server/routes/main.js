@@ -3,7 +3,9 @@ const router = express.Router();
 const axios = require("axios");
 const Bet = require("../models/Bet");
 const User = require("../models/User");
+const Token = require("../models/Token");
 const authMiddleware = require("../middlewares/authMiddleware");
+const { generateToken, saveToken } = require("../middlewares/tokenizer");
 const apiKey = process.env.API_TOKEN;
 
 /**
@@ -194,16 +196,36 @@ router.get("/yourbet", (req, res) => {
 
 router.get("/invite", authMiddleware, async (req, res) => {
   try {
-    const betId = req.query.betId;
+    const { action, betId } = req.query;
 
-    if (!betId) {
-      return res.status(400).send("betId is required.");
+    // Check if the user is requesting to generate a token
+    if (action === "generateToken" && betId) {
+      const bet = await Bet.findById(betId);
+      if (!bet) {
+        return res.status(404).send("Bet not found.");
+      }
+
+      // Generate a token and save it
+      const token = generateToken();
+      const expirationTime = new Date();
+      expirationTime.setHours(expirationTime.getHours() + 2);
+
+      await saveToken(token, betId, expirationTime);
+
+      // Redirect to the invite page with the token in the URL
+      return res.redirect(`/invite?token=${token}`);
     }
 
-    res.render("invite", {
-      title: "Invite Friends",
-      betId,
-    });
+    // If the token is already present in the URL, render the invite page
+    const { token } = req.query;
+    if (token) {
+      res.render("invite", {
+        title: "Invite Friends",
+        token,
+      });
+    } else {
+      res.status(400).send("Invalid request.");
+    }
   } catch (error) {
     console.error("Error handling invite GET request:", error);
     res.status(500).send("An error occurred while loading the invite page.");

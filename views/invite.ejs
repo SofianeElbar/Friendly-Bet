@@ -1,7 +1,11 @@
-<form action="/invite?betId=<%= betId %>" method="POST">
+<form action="/invite?token=<%= token %>" method="POST">
   <label class="email" for="emails"
     >Enter friends' email addresses (comma-separated):</label
   >
   <input type="text" id="emails" name="emails" required />
+
+  <!-- Include the token as a hidden input field -->
+  <input type="hidden" name="token" value="<%= token %>" />
+
   <button type="submit">Send Invitations</button>
 </form>

@@ -7,7 +7,7 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const sendBetInvitation = require("../services/mailer");
 const jwt = require("jsonwebtoken");
 const Token = require("../models/Token");
-const generateToken = require("../middlewares/tokenizer");
+const { generateToken, saveToken } = require("../middlewares/tokenizer");
 const jwtSecret = process.env.JWT_SECRET;
 
 const adminLayout = "../views/layouts/admin";
@@ -74,23 +74,19 @@ router.get("/signup", async (req, res) => {
 router.get("/dashboard", authMiddleware, async (req, res) => {
   try {
     const userId = req.userId;
-
     const data = await Bet.find({ participants: userId }).populate(
       "participants"
     );
 
-    const locals = {
-      title: "Dashboard",
-      description: "All your Bets",
-    };
-
     res.render("admin/dashboard", {
       userId,
       layout: adminLayout,
-      locals,
       data,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error loading dashboard:", error);
+    res.status(500).send("An error occurred while loading the dashboard.");
+  }
 });
 
 /**
@@ -399,7 +395,6 @@ router.post("/yourbet", async (req, res) => {
       stake,
     };
 
-    // req.session.betData = betData;
     console.log(betData);
 
     betData.betDate = formatBetDate(betData.betDate);
@@ -420,18 +415,28 @@ router.post("/yourbet", async (req, res) => {
 
 router.post("/invite", authMiddleware, async (req, res) => {
   try {
-    const { emails } = req.body;
-    const betId = req.query.betId;
+    const token = req.query.token;
 
-    if (!betId) {
-      return res.status(400).send("betId is required.");
+    if (!token) {
+      return res.status(400).send("Token is required.");
     }
 
-    const bet = await Bet.findById(betId);
+    const tokenEntry = await Token.findOne({ token });
 
-    if (!bet) {
-      return res.status(404).send("Bet not found.");
+    if (!tokenEntry || tokenEntry.expiresAt < new Date()) {
+      return res.status(404).send("Invalid or expired token.");
     }
+
+    // const betId = tokenEntry.betId;
+    // if (!betId) {
+    //   return res.status(404).send("Bet not found.");
+    // }
+
+    // const bet = await Bet.findById(betId);
+
+    // if (!bet) {
+    //   return res.status(404).send("Bet not found.");
+    // }
 
     const user = await User.findById(req.userId);
 
@@ -439,17 +444,7 @@ router.post("/invite", authMiddleware, async (req, res) => {
       return res.status(404).send("User not found.");
     }
 
-    // Id bet Tokenization
-    const token = generateToken();
-    const expirationTime = new Date();
-    expirationTime.setHours(expirationTime.getHours() + 2);
-    const tokenEntry = new Token({
-      token: token,
-      betId: betId,
-      expiresAt: expirationTime,
-    });
-    await tokenEntry.save();
-
+    const { emails } = req.body;
     const emailList = emails.split(",").map((email) => email.trim());
     const inviteLink = `http://localhost:5000/join?token=${token}`;
 
