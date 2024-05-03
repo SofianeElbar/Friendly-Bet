@@ -5,7 +5,11 @@ const Bet = require("../models/Bet");
 const User = require("../models/User");
 const Token = require("../models/Token");
 const authMiddleware = require("../middlewares/authMiddleware");
-const { generateToken, saveToken } = require("../middlewares/tokenizer");
+const {
+  generateToken,
+  saveToken,
+  verifyToken,
+} = require("../middlewares/tokenizer");
 const apiKey = process.env.API_TOKEN;
 
 /**
@@ -231,5 +235,28 @@ router.get("/invite", authMiddleware, async (req, res) => {
     res.status(500).send("An error occurred while loading the invite page.");
   }
 });
+
+// router.get("/join", async (req, res) => {
+//   try {
+//     const { token } = req.query;
+
+//     const tokenEntry = verifyToken(token);
+
+//     const userId = req.userId;
+//     if (!userId) {
+//       return res.redirect(`/joinlogin?token=${token}`);
+//     }
+
+//     const data = await Bet.findById(tokenEntry.betId).populate("participants");
+//     if (!data) {
+//       return res.status(404).send("Bet not found.");
+//     }
+
+//     res.render("admin/join", { data, userId });
+//   } catch (error) {
+//     console.error("Error handling /join GET request:", error);
+//     res.status(500).send("An error occurred while loading the join page.");
+//   }
+// });
 
 module.exports = router;

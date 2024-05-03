@@ -7,7 +7,11 @@ const authMiddleware = require("../middlewares/authMiddleware");
 const sendBetInvitation = require("../services/mailer");
 const jwt = require("jsonwebtoken");
 const Token = require("../models/Token");
-const { generateToken, saveToken } = require("../middlewares/tokenizer");
+const {
+  generateToken,
+  saveToken,
+  verifyToken,
+} = require("../middlewares/tokenizer");
 const jwtSecret = process.env.JWT_SECRET;
 
 const adminLayout = "../views/layouts/admin";
@@ -17,36 +21,63 @@ const adminLayout = "../views/layouts/admin";
  * Home - Login Page
  */
 
-router.get(
-  "/",
-  (req, res, next) => {
-    // Check if the user is authenticated
-    if (req.cookies.token) {
-      // If the user is authenticated, redirect to the dashboard
-      return res.redirect("/dashboard");
-    } else {
-      // If the user is not authenticated, proceed to render the index page
-      return next();
-    }
-  },
-  async (req, res) => {
-    try {
-      // Set cache-control headers
-      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-      res.setHeader("Pragma", "no-cache");
-      res.setHeader("Expires", "0");
+router.get("/", (req, res) => {
+  try {
+    // Set cache-control headers
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
 
-      const locals = {
-        title: "Friendly Bet",
-        description: "Welcome",
-      };
+    // Check if the user is authenticated (has a valid session or token)
+    if (
+      (req.session && req.session.userId) ||
+      (req.cookies && req.cookies.token)
+    ) {
+      const betToken = req.session.betToken; // Retrieve bet token from session if present
 
-      res.render("admin/index", { locals, layout: adminLayout });
-    } catch (error) {
-      console.log(error);
+      if (betToken) {
+        // If there's a valid bet token, redirect to join page
+        return res.redirect(`/join?token=${betToken}`);
+      } else {
+        // If no bet token, redirect to dashboard
+        return res.redirect("/dashboard");
+      }
     }
+
+    // If the user is not authenticated, render the index page
+    const locals = {
+      title: "Friendly Bet",
+      description: "Welcome",
+    };
+
+    res.render("admin/index", { locals, layout: adminLayout });
+  } catch (error) {
+    console.error("Error handling / GET request:", error);
+    res.status(500).send("An error occurred while loading the home page.");
   }
-);
+});
+
+/**
+ * GET/
+ * Home - Login Page for invited friends
+ */
+
+router.get("/joinlogin", (req, res) => {
+  const token = req.query.token; // Use the `token` parameter from the query
+  console.log(`betToken from query in /joinlogin GET: ${token}`);
+
+  // Existing code
+  const locals = {
+    title: "Friendly Bet",
+    description: "Welcome",
+  };
+
+  res.render("admin/joinlogin", {
+    locals,
+    layout: adminLayout,
+    betToken: token,
+  });
+});
 
 /**
  * GET/
@@ -95,8 +126,14 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
  */
 
 router.get("/logout", (req, res) => {
-  res.clearCookie("token");
-  res.redirect("/");
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error destroying session:", err);
+      return res.status(500).send("An error occurred during logout.");
+    }
+    res.clearCookie("token"); // Clear the JWT token cookie
+    res.redirect("/"); // Redirect to the home page or another appropriate page
+  });
 });
 
 /**
@@ -134,21 +171,81 @@ router.post("/register", async (req, res) => {
 
 router.post("/admin", async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, password, betToken } = req.body;
+    console.log(`betToken from POST: ${betToken}`);
     const user = await User.findOne({ username });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+    // Set userId in session
+    req.session.userId = user._id;
+
+    // Set the JWT token in the cookie
     const token = jwt.sign({ userId: user._id }, jwtSecret);
     res.cookie("token", token, { httpOnly: true });
-    res.redirect(`/dashboard`);
+
+    if (betToken) {
+      const tokenEntry = await verifyToken(betToken);
+      console.log(`tokenEntry from POST: ${JSON.stringify(tokenEntry)}`);
+
+      if (tokenEntry && tokenEntry.isValid) {
+        // If the bet token is valid, store it in the session
+        req.session.betToken = betToken;
+        return res.redirect(`/join?token=${betToken}`);
+      }
+    }
+
+    // Redirect to the dashboard
+    res.redirect("/dashboard");
   } catch (error) {
-    console.log(error);
+    console.error("Error handling /admin POST request:", error);
+    res.status(500).send("An error occurred during authentication.");
+  }
+});
+
+/**
+ * GET/
+ * Home - Join Bet Page if alredy authenticated
+ */
+
+router.get("/join", async (req, res) => {
+  try {
+    // Retrieve token from query params
+    const token = req.query.token;
+    console.log(`Token from query in /join GET: ${token}`); // Debugging statement
+
+    // Validate the token
+    const tokenEntry = await verifyToken(token);
+    console.log(`tokenEntry from /join GET: ${JSON.stringify(tokenEntry)}`); // Debugging statement
+
+    if (!tokenEntry || !tokenEntry.isValid) {
+      return res.status(404).send("Invalid or expired token.");
+    }
+
+    // Retrieve the bet
+    const bet = await Bet.findById(tokenEntry.betId).populate("participants");
+    if (!bet) {
+      return res.status(404).send("Bet not found.");
+    }
+
+    // Check if the user is authenticated
+    const userId = req.session.userId;
+    console.log(`User ID from session in /join GET: ${userId}`); // Debugging statement
+    if (!userId) {
+      return res.redirect(`/joinlogin?token=${token}`);
+    }
+
+    // If the user is authenticated, render the join page with bet data
+    res.render("admin/join", { bet, userId });
+  } catch (error) {
+    console.error("Error handling /join GET request:", error);
+    res.status(500).send("An error occurred while loading the join page.");
   }
 });
 
